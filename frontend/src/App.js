@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import ImageComponent from './components/image';
+import ImageComponent from './components/image_selector';
 
 function App() {
   const [message, setMessage] = useState('');

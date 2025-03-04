@@ -1,0 +1,20 @@
+.image-container {
+    text-align: center;  
+    margin-top: 50px;
+    margin-right: 50px;
+  }
+
+.centered-image {
+display: block;
+margin-left: auto;
+margin-right: 0;
+/*  Option 1:  Fixed dimensions (adjust as needed) */
+width: 800px;  /* Example width */
+height: 800px; /* Example height */
+object-fit: contain; /* Or 'cover' depending on the desired behavior */
+} 
+
+.button-container {
+    margin-top: 10px;
+}
+  
