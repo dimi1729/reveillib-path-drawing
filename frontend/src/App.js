@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ImageComponent from './components/image';
 
 function App() {
   const [message, setMessage] = useState('');
@@ -11,8 +12,7 @@ function App() {
 
   return (
     <div>
-      <h1>Image Clicker App</h1>
-      <p>{message}</p>
+      <ImageComponent />
     </div>
   );
 }
