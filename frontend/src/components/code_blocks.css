@@ -1,0 +1,30 @@
+.code-blocks-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 600px;
+    margin-left: 20px; 
+    position: fixed;
+    top: 40px; 
+}
+
+.code-block {
+    background-color: #2d2d2d;
+    border: 1px solid #444; 
+    padding: 10px;
+    font-family: 'Courier New', Courier, monospace;
+    width: 1000px;
+    height: 200px; 
+    overflow-x: auto;
+    overflow-y: auto; 
+    color: #f8f8f2; 
+}
+
+.code-block-empty {
+    height: 80px;
+}
+
+.code-block-content {
+    /* Use pre to prevent wrapping so long lines will scroll */
+    white-space: pre;
+}
