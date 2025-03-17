@@ -3,6 +3,7 @@ import vexu_skills from '../images/vexu_skills.png';
 import vexu_game from '../images/vexu_game.png';
 import './image_selector.css';
 import { convertPixelsToFeet } from '../helpers/conversions'
+import CodeBlocks from './code_blocks'
 
 function ImageComponent() {
   const [currentImage, setCurrentImage] = useState(vexu_skills); // Start with skills image
@@ -41,16 +42,8 @@ return (
                 className="centered-image" 
                 onClick={handleImageClick}
             />
-            <div className="click-position" style={{ 
-                position: 'absolute', 
-                bottom: '10px', 
-                left: '10px', 
-                background: 'rgba(0,0,0,0.7)', 
-                color: 'white', 
-                padding: '5px', 
-                borderRadius: '3px' 
-            }}>
-                Clicked Position: x={clickPosition.x}, y={clickPosition.y}
+            <div>
+                <CodeBlocks text={`Clicked Position: x=${clickPosition.x}, y=${clickPosition.y}`} />
             </div>
         </div>
         <div className="button-container">
