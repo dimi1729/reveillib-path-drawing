@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import vexu_skills from '../images/vexu_skills.png';
 import vexu_game from '../images/vexu_game.png';
 import './image_selector.css';
+import { convertPixelsToFeet } from '../helpers/conversions'
 
 function ImageComponent() {
   const [currentImage, setCurrentImage] = useState(vexu_skills); // Start with skills image
@@ -24,8 +25,10 @@ const handleImageClick = (event) => {
     // Calculate the position relative to the image
     const xPos = Math.round(x);
     const yPos = Math.round(y);
+
+    const pos_ft = convertPixelsToFeet(xPos, yPos, "bottom_left")
     
-    setClickPosition({ x: xPos, y: yPos });
+    setClickPosition({ x: pos_ft.x_pos, y: pos_ft.y_pos });
     console.log(`Clicked at position: x=${xPos}, y=${yPos}`);
 };
 
