@@ -2,26 +2,22 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 600px;
-    margin-left: 20px; 
     position: fixed;
-    top: 40px; 
+    top: 1vw;
+    left: 1vw;       /* fixed to left side */
+    width: 47vw;   /* use half of the viewport width */
 }
 
 .code-block {
     background-color: #2d2d2d;
     border: 1px solid #444; 
-    padding: 10px;
+    padding: 0.1vw;
     font-family: 'Courier New', Courier, monospace;
-    width: 1000px;
-    height: 200px; 
+    width: 100%;
+    height: 15vw; 
     overflow-x: auto;
     overflow-y: auto; 
     color: #f8f8f2; 
-}
-
-.code-block-empty {
-    height: 80px;
 }
 
 .code-block-content {
