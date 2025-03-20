@@ -45,7 +45,7 @@ return (
                 onClick={handleImageClick}
             />
             <div>
-                <CodeBlocks text={`Clicked Position: x=${clickPosition.x}, y=${clickPosition.y}`} />
+                <CodeBlocks x_ft={clickPosition.x} y_ft={clickPosition.y} speed="fast_motion" />
             </div>
         </div>
         <div className="button-container">
