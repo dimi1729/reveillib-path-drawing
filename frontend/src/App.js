@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import fbConfig from "./configuration/firebase";
 import ImageComponent from './components/image_selector';
 
 function App() {

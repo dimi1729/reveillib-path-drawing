@@ -17,5 +17,6 @@ const firebaseConfig = {
  };
 
 const fbConfig = initializeApp(firebaseConfig);
+// console.log(app);
 
 export default fbConfig;
