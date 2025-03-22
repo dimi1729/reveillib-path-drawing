@@ -22,13 +22,15 @@ function App() {
 
   // get the firebase context
   const firebase = React.useContext(FirebaseContext);
-  
+
   // firestore database listener test
   React.useEffect(() => {
     const db = getFirestore(firebase);
     const q = query(collection(db, "test"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      document.querySelector('#testingFirestore').innerHTML = '';
       querySnapshot.forEach((doc) => {
+        document.querySelector('#testingFirestore').innerHTML += `<p>${doc.data().name}</p>`;
         console.log(doc.data());
       });
     });
@@ -45,28 +47,37 @@ function App() {
       email: "test",
       profile_picture: "test"
     });
-    // Setting data works, but switched to firestore for real time collaboration features
-    // Might use for an admin console or something similar
+  // Setting data works, but switched to firestore for real time collaboration features
+  // Might use for an admin console or something similar
 
-    fetch('/api/test')
-      .then(response => response.json())
-      .then(data => setMessage(data.message));
-  }, []);
+  fetch('/api/test')
+    .then(response => response.json())
+    .then(data => setMessage(data.message));
+}, []);
 
-  return (
-    <div>
-      <ImageComponent />
+return (
+  <div>
+    <ImageComponent />
 
-      {/* Need to include this in order to use the firebase listeners above, will have to look at how best to add firebase to other files  */}
-      <FirebaseContext.Provider value={fbConfig}>
-        {/* Firebase Test ==> NOT WORKING*/}
-        {/* <FirestoreSeperateFileTest /> */}
-      </FirebaseContext.Provider>
-        
-        
+    {/* Need to include this in order to use the firebase listeners above, will have to look at how best to add firebase to other files  */}
+    <FirebaseContext.Provider value={fbConfig}>
+      <h1> Spacing </h1>
+      <h1> Spacing </h1>
+      <h1> Spacing </h1>
+      <h1> Spacing </h1>
+      <h1> Spacing </h1>
+      <h1> Spacing </h1>
+      <h1> Spacing </h1>
+      <h1> Spacing </h1>
+      <div id="testingFirestore"></div>
+      {/* Firebase Test ==> NOT WORKING*/}
+      {/* <FirestoreSeperateFileTest /> */}
+    </FirebaseContext.Provider>
 
-    </div>
-  );
+
+
+  </div>
+);
 }
 
 export default App;
