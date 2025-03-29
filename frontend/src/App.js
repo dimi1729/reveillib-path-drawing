@@ -5,77 +5,80 @@ import ImageComponent from './components/image_selector';
 // going to try making a context container for firebase and any other global state
 // import FirestoreSeperateFileTest from './components/rtfb_test';
 
-// Firebase imports
-import fbConfig from './configuration/firebase';
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set } from "firebase/database";
-import { getFirestore, collection, query, onSnapshot } from "firebase/firestore";
-
-// Create Firebase context
-const FirebaseContext = React.createContext(fbConfig);
+import Login from "./components/login.jsx";
+import { firebaseManager } from "./configuration/firebase";
 
 function App() {
   const [message, setMessage] = useState('');
+  const [user, setUser] = useState(null);
 
-
-  // Firebase Tests
-
-  // get the firebase context
-  const firebase = React.useContext(FirebaseContext);
-
-  // firestore database listener test
-  React.useEffect(() => {
-    const db = getFirestore(firebase);
-    const q = query(collection(db, "test"));
-    const unsubscribe = onSnapshot(q, (querySnapshot) => {
-      document.querySelector('#testingFirestore').innerHTML = '';
-      querySnapshot.forEach((doc) => {
-        document.querySelector('#testingFirestore').innerHTML += `<p>${doc.data().name}</p>`;
-        console.log(doc.data());
-      });
-    });
-
-  }, []);
-  // Test works with changing the database, unsure what it will do with pushing data from the app (check for potential looping)
-
-  // realtime database test
+  // Listen for authentication state changes
   useEffect(() => {
-    const db = getDatabase(fbConfig);
-    console.log(db);
-    set(ref(db, 'users/' + "test"), {
-      username: "test",
-      email: "test",
-      profile_picture: "test"
+    const unsubscribe = firebaseManager.onAuthStateChange((currentUser) => {
+      setUser(currentUser);
     });
-  // Setting data works, but switched to firestore for real time collaboration features
-  // Might use for an admin console or something similar
+    return () => unsubscribe(); // Cleanup subscription
+  }, []);
 
   fetch('/api/test')
     .then(response => response.json())
     .then(data => setMessage(data.message));
-}, []);
 
 return (
   <div>
     <ImageComponent />
 
-    {/* Need to include this in order to use the firebase listeners above, will have to look at how best to add firebase to other files  */}
-    <FirebaseContext.Provider value={fbConfig}>
-      <h1> Spacing </h1>
-      <h1> Spacing </h1>
-      <h1> Spacing </h1>
-      <h1> Spacing </h1>
-      <h1> Spacing </h1>
-      <h1> Spacing </h1>
-      <h1> Spacing </h1>
-      <h1> Spacing </h1>
-      <div id="testingFirestore"></div>
-      {/* Firebase Test ==> NOT WORKING*/}
-      {/* <FirestoreSeperateFileTest /> */}
-    </FirebaseContext.Provider>
+    {/* Account Info Box (Top-Left Corner) */}
+    {user && (
+        <div
+          style={{
+            position: "absolute",
+            top: "20px",
+            left: "20px",
+            padding: "10px",
+            backgroundColor: "#1e1e1e", // Slightly lighter dark background
+            color: "#e0e0e0",
+            borderRadius: "5px",
+            boxShadow: "0 2px 10px rgba(0, 0, 0, 0.3)",
+            maxWidth: "200px",
+            textAlign: "center",
+          }}
+        >
+          {user.photoURL && (
+            <img
+              src={user.photoURL}
+              alt="Profile"
+              style={{
+                width: "50px",
+                height: "50px",
+                borderRadius: "50%",
+                marginBottom: "10px",
+                border: "2px solid #fff",
+              }}
+            />
+          )}
+          <p style={{ margin: "5px 0", fontSize: "14px" }}>
+            Welcome, {user.displayName || user.email}
+          </p>
+          <button
+            onClick={() => firebaseManager.logOut()} // Log out the user
+            style={{
+              padding: "5px 10px",
+              backgroundColor: "#ff4d4d",
+              color: "white",
+              border: "none",
+              borderRadius: "5px",
+              cursor: "pointer",
+              fontSize: "12px",
+            }}
+          >
+            Sign Out
+          </button>
+        </div>
+      )}
 
-
-
+    {/* Login Component */}
+    {!user && <Login onSignIn={(user) => setUser(user)} />}
   </div>
 );
 }
