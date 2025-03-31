@@ -123,7 +123,7 @@
  */
 
 
-function update_path(old_path_json, new_data) {
+export function update_path(old_path_json, new_data) {
     // Handle the case where old_path_json is null
     if (!old_path_json) {
         old_path_json = {
@@ -196,7 +196,7 @@ function update_path(old_path_json, new_data) {
     return path_json;
 }
 
-function convert_to_reveillib_code(path_json) {
+export function convert_to_reveillib_code(path_json) {
     let code = "";
     const pathIds = path_json["Path ids dict"];
     
