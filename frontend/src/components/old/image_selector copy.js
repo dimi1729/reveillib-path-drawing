@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import vexu_skills from '../images/vexu_skills.png';
 import vexu_game from '../images/vexu_game.png';
 import './image_selector.css';
-import { convertPixelsToFeet } from '../helpers/conversions';
-import CodeBlocks from './code_blocks';
+import { convertPixelsToFeet } from '../../helpers/conversions';
+import CodeBlocks from '../code_blocks';
 
 function ImageComponent() {
     const [currentImage, setCurrentImage] = useState(vexu_skills); // Start with skills image
@@ -99,10 +99,10 @@ function ImageComponent() {
                 prevPoints.map((point) =>
                     point.id === pointId
                         ? {
-                            ...point,
-                            x: Math.max(0, point.x + deltaX), // Ensure it stays within bounds
-                            y: Math.max(0, point.y + deltaY),
-                        }
+                              ...point,
+                              x: Math.max(0, point.x + deltaX), // Ensure it stays within bounds
+                              y: Math.max(0, point.y + deltaY),
+                          }
                         : point
                 )
             );
@@ -131,17 +131,16 @@ function ImageComponent() {
         setEditingPointId(id); // Set the point being edited
     };
 
-    const handleSaveEdit = (id, label, x, y, angle) => {
+    const handleSaveEdit = (id, label, x, y) => {
         setPoints((prevPoints) =>
             prevPoints.map((point) =>
                 point.id === id
                     ? {
-                        ...point,
-                        label,
-                        x: parseFloat(x),
-                        y: parseFloat(y),
-                        angle: parseFloat(angle),
-                    }
+                          ...point,
+                          label,
+                          x: parseFloat(x),
+                          y: parseFloat(y),
+                      }
                     : point
             )
         );
@@ -176,75 +175,7 @@ function ImageComponent() {
                 overflow: 'hidden',
             }}
         >
-            <div
-                className="side-menu"
-            >
-                <h3>Points</h3>
-                <button onClick={handleCreateNewPoint} style={{ marginBottom: '10px' }}>
-                    Create New Point
-                </button>
-                {points.length === 0 ? (
-                    <p>No points created yet.</p>
-                ) : (
-                    points.map((point) => (
-                        <div key={point.id} style={{ marginBottom: '10px' }}>
-                            {editingPointId === point.id ? (
-                                <div>
-                                    <input
-                                        type="text"
-                                        defaultValue={point.label}
-                                        placeholder="Label"
-                                        style={{ display: 'block', marginBottom: '5px' }}
-                                        ref={(input) => (window[`labelInput-${point.id}`] = input)}
-                                    />
-                                    <input
-                                        type="number"
-                                        defaultValue={point.x}
-                                        placeholder="X Position"
-                                        style={{ display: 'block', marginBottom: '5px' }}
-                                        ref={(input) => (window[`xInput-${point.id}`] = input)}
-                                    />
-                                    <input
-                                        type="number"
-                                        defaultValue={point.y}
-                                        placeholder="Y Position"
-                                        style={{ display: 'block', marginBottom: '5px' }}
-                                        ref={(input) => (window[`yInput-${point.id}`] = input)}
-                                    />
-                                    <input
-                                        type="number"
-                                        defaultValue={point.angle}
-                                        placeholder="Angle"
-                                        style={{ display: 'block', marginBottom: '5px' }}
-                                        ref={(input) => (window[`angle-${point.id}`] = input)}
-                                    />
-                                    <button
-                                        onClick={() =>
-                                            handleSaveEdit(
-                                                point.id,
-                                                window[`labelInput-${point.id}`].value,
-                                                window[`xInput-${point.id}`].value,
-                                                window[`yInput-${point.id}`].value,
-                                                window[`angle-${point.id}`].value
-                                            )
-                                        }
-                                    >
-                                        Save
-                                    </button>
-                                    <button onClick={() => setEditingPointId(null)}>Cancel</button>
-                                </div>
-                            ) : (
-                                <div>
-                                    <strong>{point.label}</strong>
-                                    <p>X: {point.x.toFixed(1)}, Y: {point.y.toFixed(1)}, Angle: {point.angle.toFixed(1)}</p>
-                                    <button onClick={() => handleEditPoint(point.id)}>Edit</button>
-                                    <button onClick={() => handleDeletePoint(point.id)}>Delete</button>
-                                </div>
-                            )}
-                        </div>
-                    ))
-                )}
-            </div>
+
 
             {/* Main Content */}
             <div
@@ -281,21 +212,6 @@ function ImageComponent() {
                                 userSelect: 'none', // Disable text selection
                             }}
                             onMouseDown={(e) => handleDragStart(point.id, e)}
-                        ></div>
-
-                        {/* Angle Indicator Bar */}
-                        <div
-                            style={{
-                                position: 'absolute',
-                                left: '0px', // Centered at the point's origin
-                                top: '-1px',
-                                width: '8px', // Length of the bar
-                                height: '2px', // Thickness of the bar
-                                backgroundColor: 'blue', // Color of the bar
-                                transform: `rotate(${point.angle}deg)`, // Rotate the bar based on the angle
-                                transformOrigin: 'center', // Rotate around the center of the bar
-                                pointerEvents: 'none', // Ensure it doesn't interfere with interactions
-                            }}
                         ></div>
 
                         {/* Point Label */}
@@ -353,6 +269,67 @@ function ImageComponent() {
             <div style={{ position: 'absolute', bottom: '10px', left: '300px' }}>
                 <CodeBlocks x_ft={0} y_ft={0} speed="fast_motion" />
                 {/* Side Menu */}
+                <div
+                    className="side-menu"
+                >
+                    <h3>Points</h3>
+                    <button onClick={handleCreateNewPoint} style={{ marginBottom: '10px' }}>
+                        Create New Point
+                    </button>
+                    {points.length === 0 ? (
+                        <p>No points created yet.</p>
+                    ) : (
+                        points.map((point) => (
+                            <div key={point.id} style={{ marginBottom: '10px' }}>
+                                {editingPointId === point.id ? (
+                                    <div>
+                                        <input
+                                            type="text"
+                                            defaultValue={point.label}
+                                            placeholder="Label"
+                                            style={{ display: 'block', marginBottom: '5px' }}
+                                            ref={(input) => (window[`labelInput-${point.id}`] = input)}
+                                        />
+                                        <input
+                                            type="number"
+                                            defaultValue={point.x}
+                                            placeholder="X Position"
+                                            style={{ display: 'block', marginBottom: '5px' }}
+                                            ref={(input) => (window[`xInput-${point.id}`] = input)}
+                                        />
+                                        <input
+                                            type="number"
+                                            defaultValue={point.y}
+                                            placeholder="Y Position"
+                                            style={{ display: 'block', marginBottom: '5px' }}
+                                            ref={(input) => (window[`yInput-${point.id}`] = input)}
+                                        />
+                                        <button
+                                            onClick={() =>
+                                                handleSaveEdit(
+                                                    point.id,
+                                                    window[`labelInput-${point.id}`].value,
+                                                    window[`xInput-${point.id}`].value,
+                                                    window[`yInput-${point.id}`].value
+                                                )
+                                            }
+                                        >
+                                            Save
+                                        </button>
+                                        <button onClick={() => setEditingPointId(null)}>Cancel</button>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <strong>{point.label}</strong>
+                                        <p>X: {point.x.toFixed(1)}, Y: {point.y.toFixed(1)}</p>
+                                        <button onClick={() => handleEditPoint(point.id)}>Edit</button>
+                                        <button onClick={() => handleDeletePoint(point.id)}>Delete</button>
+                                    </div>
+                                )}
+                            </div>
+                        ))
+                    )}
+                </div>
             </div>
         </div>
     );
