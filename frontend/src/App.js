@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ImageComponent from './components/image_selector';
-import CPPCodeEditor from './components/codeblocks';
+// import CPPCodeEditor from './components/codeblocks';
 
 // Firebase Seperate File Test ==> NOT WORKING
 // going to try making a context container for firebase and any other global state
@@ -27,8 +27,8 @@ function App() {
 
 return (
   <div>
-    {/* <ImageComponent /> */}
-    <CPPCodeEditor />
+    <ImageComponent />
+    {/* <CPPCodeEditor /> */}
 
     {/* Account Info Box (Bottom-Left Corner) */}
       {user && (

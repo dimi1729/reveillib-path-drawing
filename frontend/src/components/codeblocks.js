@@ -1,4 +1,7 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import Prism from "prismjs";
+import "prismjs/themes/prism-tomorrow.css"; // Import a theme for syntax highlighting
+import "prismjs/components/prism-cpp"; // Import the C++ language definition
 
 const CPPCodeEditor = () => {
   const [code, setCode] = useState(`#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}`);
@@ -15,18 +18,46 @@ const CPPCodeEditor = () => {
 
   // Restore the cursor position
   const restoreCursorPosition = (range) => {
-    if (range) {
+    if (range && editorRef.current) {
       const selection = window.getSelection();
       selection.removeAllRanges();
       selection.addRange(range);
     }
   };
 
+  // Apply syntax highlighting
+  useEffect(() => {
+    if (editorRef.current) {
+      // Clear existing content to avoid duplication
+      editorRef.current.innerHTML = "";
+
+      // Create a highlighted HTML string using Prism.js
+      const highlightedCode = Prism.highlight(
+        code,
+        Prism.languages.cpp, // Use the C++ language definition
+        "cpp" // Specify the language
+      );
+
+      // Insert the highlighted code into the contentEditable div
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = highlightedCode;
+
+      // Append each child node of the highlighted code to the editor
+      Array.from(tempDiv.childNodes).forEach((node) => {
+        editorRef.current.appendChild(node.cloneNode(true));
+      });
+
+      // Restore the cursor position
+      const range = saveCursorPosition();
+      setTimeout(() => restoreCursorPosition(range), 0);
+    }
+  }, [code]);
+
   // Handle input changes
-  const handleInput = (event) => {
+  const handleInput = () => {
     const range = saveCursorPosition(); // Save the cursor position
-    setCode(event.target.innerText); // Update the state with the new content
-    setTimeout(() => restoreCursorPosition(range), 0); // Restore the cursor position after React updates the DOM
+    const newCode = editorRef.current.innerText; // Get the updated content
+    setCode(newCode); // Update the state with the new content
   };
 
   // Handle keydown events (e.g., Tab)
@@ -53,19 +84,9 @@ const CPPCodeEditor = () => {
     }
   };
 
-  // Change the code programmatically
-  const changeCode = () => {
-    const range = saveCursorPosition(); // Save the cursor position
-    setCode(`#include <iostream>\n\nint main() {\n    std::cout << "Code changed!" << std::endl;\n    return 0;\n}`);
-    setTimeout(() => restoreCursorPosition(range), 0); // Restore the cursor position after React updates the DOM
-  };
-
   return (
     <div style={styles.container}>
       <h2>C++ Code Editor</h2>
-      <button onClick={changeCode} style={styles.button}>
-        Change Code
-      </button>
       <div
         ref={editorRef}
         style={styles.codeBlock}
@@ -73,9 +94,7 @@ const CPPCodeEditor = () => {
         onInput={handleInput}
         onKeyDown={handleKeyDown}
         suppressContentEditableWarning={true}
-      >
-        {code}
-      </div>
+      ></div>
     </div>
   );
 };
@@ -102,16 +121,6 @@ const styles = {
     whiteSpace: "pre-wrap",
     overflowX: "auto",
     minHeight: "150px",
-  },
-  button: {
-    marginBottom: "10px",
-    padding: "10px 20px",
-    fontSize: "14px",
-    cursor: "pointer",
-    borderRadius: "4px",
-    border: "1px solid #ccc",
-    backgroundColor: "#007bff",
-    color: "#fff",
   },
 };
 
