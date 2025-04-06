@@ -6,7 +6,7 @@ import ImageComponent from './components/image_selector';
 // going to try making a context container for firebase and any other global state
 // import FirestoreSeperateFileTest from './components/rtfb_test';
 
-import Login from "./components/login.jsx";
+import Login from "./components/login.js";
 import { firebaseManager } from "./configuration/firebase";
 
 function App() {
