@@ -167,18 +167,8 @@ function ImageComponent() {
     };
 
     return (
-        <div
-            className="image-container"
-            style={{
-                display: 'flex',
-                height: '100vh',
-                fontFamily: 'Arial, sans-serif',
-                overflow: 'hidden',
-            }}
-        >
-            <div
-                className="side-menu"
-            >
+        <div className="image-container">
+            <div className="side-menu">
                 <h3>Points</h3>
                 <button onClick={handleCreateNewPoint} style={{ marginBottom: '10px' }}>
                     Create New Point
@@ -249,7 +239,6 @@ function ImageComponent() {
             {/* Main Content */}
             <div
                 className="image-wrapper"
-                style={{ position: 'relative', flex: 1, userSelect: 'none' }} // Disable text selection
                 onMouseDown={handleMouseDown}
                 onMouseUp={handleMouseUp}
             >
@@ -260,7 +249,6 @@ function ImageComponent() {
                     alt="VEXU Image"
                     className="centered-image"
                     draggable="false"
-                    style={{ pointerEvents: 'none', userSelect: 'none' }} // Disable text selection
                 />
 
                 {/* Render Points */}
@@ -269,48 +257,19 @@ function ImageComponent() {
                         {/* Point Circle */}
                         <div
                             className="draggable-point"
-                            style={{
-                                position: 'absolute',
-                                left: '-7.5px', // Center the circle
-                                top: '-7.5px',
-                                width: '15px',
-                                height: '15px',
-                                backgroundColor: 'red',
-                                borderRadius: '50%',
-                                cursor: 'pointer',
-                                userSelect: 'none', // Disable text selection
-                            }}
                             onMouseDown={(e) => handleDragStart(point.id, e)}
                         ></div>
 
                         {/* Angle Indicator Bar */}
                         <div
+                            className="angle-indicator-bar"
                             style={{
-                                position: 'absolute',
-                                left: '0px', // Centered at the point's origin
-                                top: '-1px',
-                                width: '8px', // Length of the bar
-                                height: '2px', // Thickness of the bar
-                                backgroundColor: 'blue', // Color of the bar
                                 transform: `rotate(${point.angle}deg)`, // Rotate the bar based on the angle
-                                transformOrigin: 'center', // Rotate around the center of the bar
-                                pointerEvents: 'none', // Ensure it doesn't interfere with interactions
                             }}
                         ></div>
 
                         {/* Point Label */}
-                        <div
-                            style={{
-                                position: 'absolute',
-                                left: '20px',
-                                top: '-10px',
-                                fontSize: '12px',
-                                color: 'black',
-                                whiteSpace: 'nowrap',
-                                pointerEvents: 'none',
-                                userSelect: 'none', // Disable text selection
-                            }}
-                        >
+                        <div className="point-label">
                             {point.label}
                         </div>
                     </div>
@@ -320,18 +279,6 @@ function ImageComponent() {
                 {selectedPoint && (
                     <div
                         className="popup-menu"
-                        style={{
-                            position: 'absolute',
-                            left: `${selectedPoint.x + 20}px`,
-                            top: `${selectedPoint.y}px`,
-                            backgroundColor: 'white',
-                            border: '1px solid #ccc',
-                            padding: '10px',
-                            borderRadius: '5px',
-                            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.1)',
-                            zIndex: 1000,
-                            userSelect: 'none', // Disable text selection
-                        }}
                         onClick={(e) => e.stopPropagation()} // Stop clicks inside the popup from propagating
                     >
                         <h3>{selectedPoint.label}</h3>
@@ -344,13 +291,13 @@ function ImageComponent() {
             </div>
 
             {/* Buttons for Switching Images */}
-            <div className="button-container" style={{ position: 'absolute', bottom: '10px', right: '10px' }}>
+            <div className="button-container">
                 <button onClick={handleSkillsClick}>Skills Field</button>
                 <button onClick={handleGameClick}>Game Field</button>
             </div>
 
             {/* Code Blocks Component */}
-            <div style={{ position: 'absolute', bottom: '10px', left: '300px' }}>
+            <div className="code-blocks-component">
                 <CodeBlocks x_ft={0} y_ft={0} speed="fast_motion" />
                 {/* Side Menu */}
             </div>

@@ -3,7 +3,7 @@
     flex-direction: column;
     gap: 10px;
     position: fixed;
-    top: 1vw;
+    bottom: 1vw;
     left: 1vw;       /* fixed to left side */
     width: 47vw;   /* use half of the viewport width */
 }
