@@ -25,7 +25,7 @@
   position: fixed;
   bottom: 50px;
   right: 40px;
-  position: 'absolute';
+  position: absolute;
 }
 
 .image-wrapper {
@@ -34,7 +34,7 @@
   user-select: none; 
 }
 
-.draggable_point {
+.draggable-point {
   position: absolute;
   left: -7.5px;
   top: -7.5px;
@@ -82,7 +82,7 @@
 }
 
 .code-blocks-component {
-  position: 'absolute';
-  bottom: '10px';
-  left: '300px'
+  position: absolute;
+  bottom: 10px;
+  left: 300px;
 }
