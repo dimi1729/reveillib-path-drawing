@@ -10,7 +10,8 @@ function ImageComponent() {
     const [points, setPoints] = useState([]); // Track all points
     const [selectedPoint, setSelectedPoint] = useState(null); // Track the currently selected point
     const [editingPointId, setEditingPointId] = useState(null); // Track the point being edited
-    const imageRef = useRef(null);
+
+    const actualImageRef = useRef(null);
     const mouseDownPosition = useRef(null); // Track the initial mouse position on mousedown
 
     const handleSkillsClick = () => {
@@ -21,20 +22,19 @@ function ImageComponent() {
         setCurrentImage(vexu_game);
     };
 
-    const handleMouseDown = (event) => {
-        event.preventDefault(); // Prevent text selection during drag
-        const rect = imageRef.current.getBoundingClientRect();
-        const x = event.clientX - rect.left; // Relative to the image
-        const y = event.clientY - rect.top;
-
-        // Store the initial mouse position
-        mouseDownPosition.current = { x, y };
-    };
+  // Use the actual image container's rect instead of the imageRef
+  const handleMouseDown = (event) => {
+    event.preventDefault();
+    const rect = actualImageRef.current.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    mouseDownPosition.current = { x, y };
+  };
 
     const handleMouseUp = (event) => {
         if (!mouseDownPosition.current) return;
 
-        const rect = imageRef.current.getBoundingClientRect();
+        const rect = actualImageRef.current.getBoundingClientRect();
         const x = event.clientX - rect.left; // Relative to the image
         const y = event.clientY - rect.top;
 
@@ -88,29 +88,26 @@ function ImageComponent() {
         let startY = event.clientY;
 
         const dragHandler = (dragEvent) => {
-            dragEvent.preventDefault(); // Prevent text selection during drag
-
-            // Calculate the delta (difference) between the current and previous mouse positions
+            dragEvent.preventDefault(); 
+            const rect = actualImageRef.current.getBoundingClientRect();
             const deltaX = dragEvent.clientX - startX;
             const deltaY = dragEvent.clientY - startY;
-
-            // Update the specific point's position
+            
             setPoints((prevPoints) =>
-                prevPoints.map((point) =>
-                    point.id === pointId
-                        ? {
-                            ...point,
-                            x: Math.max(0, point.x + deltaX), // Ensure it stays within bounds
-                            y: Math.max(0, point.y + deltaY),
-                        }
-                        : point
-                )
+              prevPoints.map((point) => {
+                if(point.id === pointId) {
+                  const newX = Math.min(Math.max(0, point.x + deltaX), rect.width);
+                  const newY = Math.min(Math.max(0, point.y + deltaY), rect.height);
+                  return { ...point, x: newX, y: newY };
+                }
+                return point;
+              })
             );
-
-            // Update the start positions for the next drag event
+            
+            // Update for next delta calculation
             startX = dragEvent.clientX;
             startY = dragEvent.clientY;
-        };
+          };
 
         const stopDrag = () => {
             window.removeEventListener('mousemove', dragHandler);
@@ -237,20 +234,17 @@ function ImageComponent() {
             </div>
 
             {/* Main Content */}
-            <div
-                className="image-wrapper"
-                onMouseDown={handleMouseDown}
-                onMouseUp={handleMouseUp}
-            >
+            <div className="image-wrapper" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
+                <div className="actual-image-container">
                 {/* Main Image */}
-                <img
-                    ref={imageRef}
-                    src={currentImage}
-                    alt="VEXU Image"
-                    className="centered-image"
-                    draggable="false"
-                />
-
+                    <img
+                        ref={actualImageRef}
+                        src={currentImage}
+                        alt="VEXU Image"
+                        className="centered-image"
+                        draggable="false"
+                    />
+                
                 {/* Render Points */}
                 {points.map((point) => (
                     <div key={point.id} style={{ position: 'absolute', left: `${point.x}px`, top: `${point.y}px` }}>
@@ -274,7 +268,7 @@ function ImageComponent() {
                         </div>
                     </div>
                 ))}
-
+                </div>
                 {/* Popup Menu for Selected Point */}
                 {selectedPoint && (
                     <div
@@ -297,7 +291,7 @@ function ImageComponent() {
             </div>
 
             {/* Code Blocks Component */}
-            <div className="code-blocks-component">
+            <div style={{ position: 'absolute', bottom: '10px', left: '300px' }}>
                 <CodeBlocks x_ft={0} y_ft={0} speed="fast_motion" />
                 {/* Side Menu */}
             </div>

@@ -3,13 +3,42 @@
   top: 1vw;
   right: 1vw;
   bottom: 0;
-  width: 47vw;
-  overflow: hidden;
+  width: 100vw; /* or adjust as needed */
   display: flex;
-  height: 100vh;
   font-family: Arial, sans-serif;
   overflow: hidden;
- 
+}
+
+/* New flex container for the two columns */
+.main-content {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+}
+
+/* Points Column on the Left */
+.side-menu {
+  width: 30vw; /* Fixed width for your points menu */
+  overflow-y: auto;
+  background-color: #f0f0f0; /* Optional: background color for clarity */
+  padding: 20px;
+  margin-left: 1vw
+}
+
+/* Image Column on the Right */
+.image-wrapper {
+  position: absolute;
+  flex: 1;
+  user-select: none;
+}
+
+.actual-image-container {
+  position: absolute;
+  width: 50vw;
+  aspect-ratio: 1;
+  right: 0;
+  top: 1;
+  overflow: hidden;
 }
 
 .centered-image {
