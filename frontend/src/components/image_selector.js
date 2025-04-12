@@ -166,112 +166,114 @@ function ImageComponent() {
 
     return (
         <div className="image-container">
-            <div className="side-menu">
-                <h3>Points</h3>
-                <button onClick={handleCreateNewPoint} style={{ marginBottom: '10px' }}>
-                    Create New Point
-                </button>
-                {points.length === 0 ? (
-                    <p>No points created yet.</p>
-                ) : (
-                    points.map((point) => (
-                        <div key={point.id} style={{ marginBottom: '10px' }}>
-                            <div className="dropdown">
-                                <button
-                                    className="dropdown-button"
-                                    onClick={() => toggleDropdown(point.id)}
-                                >
-                                    {point.label}
-                                </button>
-                                {isDropdownOpen[point.id] && (
-                                    <div className="dropdown-content">
-                                        <input
-                                            type="text"
-                                            placeholder="Label"
-                                            value={point.label}
-                                            onChange={(e) => handleInputChange(point.id, 'label', e.target.value)}
-                                            style={{ display: 'block', marginBottom: '5px' }}
-                                        />
-                                        <input
-                                            type="number"
-                                            placeholder="X Position"
-                                            value={point.x}
-                                            onChange={(e) => handleInputChange(point.id, 'x', parseFloat(e.target.value))}
-                                            style={{ display: 'block', marginBottom: '5px' }}
-                                        />
-                                        <input
-                                            type="number"
-                                            placeholder="Y Position"
-                                            value={point.y}
-                                            onChange={(e) => handleInputChange(point.id, 'y', parseFloat(e.target.value))}
-                                            style={{ display: 'block', marginBottom: '5px' }}
-                                        />
-                                        <Knob
-                                            id={`knob-${point.id}`}
-                                            size={75}
-                                            showText={true}
-                                            angle={point.angle}
-                                            onAngleChange={(id, angle) => {
-                                                handleAngleChange(point.id, angle);
-                                            }}
-                                        />
-                                        <div style={{ marginTop: '5px' }}>
-                                            <button
-                                                onClick={() => {
-                                                    toggleDropdown(point.id); // Close the dropdown
+            <div className='main-content'>
+                <div className="side-menu">
+                    <h3>Points</h3>
+                    <button onClick={handleCreateNewPoint} style={{ marginBottom: '10px' }}>
+                        Create New Point
+                    </button>
+                    {points.length === 0 ? (
+                        <p>No points created yet.</p>
+                    ) : (
+                        points.map((point) => (
+                            <div key={point.id} style={{ marginBottom: '10px' }}>
+                                <div className="dropdown">
+                                    <button
+                                        className="dropdown-button"
+                                        onClick={() => toggleDropdown(point.id)}
+                                    >
+                                        {point.label}
+                                    </button>
+                                    {isDropdownOpen[point.id] && (
+                                        <div className="dropdown-content">
+                                            <input
+                                                type="text"
+                                                placeholder="Label"
+                                                value={point.label}
+                                                onChange={(e) => handleInputChange(point.id, 'label', e.target.value)}
+                                                style={{ display: 'block', marginBottom: '5px' }}
+                                            />
+                                            <input
+                                                type="number"
+                                                placeholder="X Position"
+                                                value={point.x}
+                                                onChange={(e) => handleInputChange(point.id, 'x', parseFloat(e.target.value))}
+                                                style={{ display: 'block', marginBottom: '5px' }}
+                                            />
+                                            <input
+                                                type="number"
+                                                placeholder="Y Position"
+                                                value={point.y}
+                                                onChange={(e) => handleInputChange(point.id, 'y', parseFloat(e.target.value))}
+                                                style={{ display: 'block', marginBottom: '5px' }}
+                                            />
+                                            <Knob
+                                                id={`knob-${point.id}`}
+                                                size={75}
+                                                showText={true}
+                                                angle={point.angle}
+                                                onAngleChange={(id, angle) => {
+                                                    handleAngleChange(point.id, angle);
                                                 }}
-                                            >
-                                                Close
-                                            </button>
-                                            <button onClick={() => handleDeletePoint(point.id)}>Delete</button>
+                                            />
+                                            <div style={{ marginTop: '5px' }}>
+                                                <button
+                                                    onClick={() => {
+                                                        toggleDropdown(point.id); // Close the dropdown
+                                                    }}
+                                                >
+                                                    Close
+                                                </button>
+                                                <button onClick={() => handleDeletePoint(point.id)}>Delete</button>
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
+                                </div>
                             </div>
-                        </div>
-                    ))
-                )}
-            </div>
+                        ))
+                    )}
+                </div>
 
-            {/* Main Content */}
-            <div className="image-wrapper" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
-                <div className="actual-image-container">
-                    {/* Main Image */}
-                    <img
-                        ref={actualImageRef}
-                        src={currentImage}
-                        alt="VEXU Image"
-                        className="centered-image"
-                        draggable="false"
-                    />
+                {/* Main Content */}
+                <div className="image-wrapper" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
+                    <div className="actual-image-container">
+                        {/* Main Image */}
+                        <img
+                            ref={actualImageRef}
+                            src={currentImage}
+                            alt="VEXU Image"
+                            className="centered-image"
+                            draggable="false"
+                        />
 
-                    {points.map((point) => (
-                        <div key={point.id} style={{ position: 'absolute', left: `${point.x}px`, top: `${point.y}px` }} className="draggable-point" onMouseDown={(e) => handleDragStart(point.id, e)}>
-                            <Knob
-                                id={`field-knob-${point.id}`}
-                                size={30}
-                                showText={false}
-                                angle={point.angle}
-                                onAngleChange={(id, angle) => {
-                                    handleAngleChange(point.id, angle);
-                                }}
-                            />
-                            <div className="point-label">
-                                {point.label}
+                        {points.map((point) => (
+                            <div key={point.id} style={{ position: 'absolute', left: `${point.x}px`, top: `${point.y}px` }} className="draggable-point" onMouseDown={(e) => handleDragStart(point.id, e)}>
+                                <Knob
+                                    id={`field-knob-${point.id}`}
+                                    size={30}
+                                    showText={false}
+                                    angle={point.angle}
+                                    onAngleChange={(id, angle) => {
+                                        handleAngleChange(point.id, angle);
+                                    }}
+                                />
+                                <div className="point-label">
+                                    {point.label}
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
+                </div>
+
+                {/* Buttons for Switching Images */}
+                <div className="button-container">
+                    <button onClick={handleSkillsClick}>Skills Field</button>
+                    <button onClick={handleGameClick}>Game Field</button>
                 </div>
             </div>
 
-            {/* Buttons for Switching Images */}
-            <div className="button-container">
-                <button onClick={handleSkillsClick}>Skills Field</button>
-                <button onClick={handleGameClick}>Game Field</button>
-            </div>
-
             {/* Code Blocks Component */}
-            <div style={{ position: 'absolute', bottom: '10px', left: '300px' }}>
+            <div className="code-blocks-component">
                 <CodeBlocks x_ft={0} y_ft={0} speed="fast_motion" />
             </div>
         </div>
