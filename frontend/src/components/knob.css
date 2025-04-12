@@ -1,0 +1,42 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f4f4f9;
+  }
+  
+  .knob-container {
+    position: relative;
+    border-radius: 50%;
+    background: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+  
+  .knob {
+    background: #4caf50;
+    border-radius: 50%;
+    position: absolute;
+    transform-origin: 50% 50%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
+  
+  .angle-display {
+    position: absolute;
+    font-size: 1em;
+    font-weight: bold;
+    color: #333;
+    width: 60%;
+    text-align: center;
+    background: none;
+    border: none;
+  }
+
+  .hidden {
+    opacity: 0; 
+    pointer-events: none; 
+  }

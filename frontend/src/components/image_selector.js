@@ -4,6 +4,7 @@ import vexu_game from '../images/vexu_game.png';
 import './image_selector.css';
 import { convertPixelsToFeet } from '../helpers/conversions';
 import CodeBlocks from './code_blocks';
+import Knob from "./knob";
 
 function ImageComponent() {
     const [currentImage, setCurrentImage] = useState(vexu_skills); // Start with skills image
@@ -163,6 +164,8 @@ function ImageComponent() {
         setPoints((prevPoints) => [...prevPoints, newPoint]);
     };
 
+
+
     return (
         <div className="image-container">
             <div className="side-menu">
@@ -198,13 +201,20 @@ function ImageComponent() {
                                         style={{ display: 'block', marginBottom: '5px' }}
                                         ref={(input) => (window[`yInput-${point.id}`] = input)}
                                     />
-                                    <input
+                                    <Knob
+                                        id="knob1"
+                                        size={80}
+                                        showText={true}
+                                        onAngleChange={(id, angle) => console.log(`Knob ${id}: ${angle}°`)}
+                                        angle={45} // Programmatically set the angle to 45°
+                                    />
+                                    {/* <input
                                         type="number"
                                         defaultValue={point.angle}
                                         placeholder="Angle"
                                         style={{ display: 'block', marginBottom: '5px' }}
                                         ref={(input) => (window[`angle-${point.id}`] = input)}
-                                    />
+                                    /> */}
                                     <button
                                         onClick={() =>
                                             handleSaveEdit(
