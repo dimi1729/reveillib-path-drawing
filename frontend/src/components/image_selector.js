@@ -8,10 +8,11 @@ import Knob from "./knob";
 
 function ImageComponent() {
     const [currentImage, setCurrentImage] = useState(vexu_skills);
-    const [points, setPoints] = useState([]);
-    const [selectedPoint, setSelectedPoint] = useState(null);
-    const [editingPointId, setEditingPointId] = useState(null);
-    const [isDropdownOpen, setIsDropdownOpen] = useState({});
+    // Paths each containing a list of points
+    const [paths, setPaths] = useState([]);
+    const [selectedPathId, setSelectedPathId] = useState(null);
+    const [isPathDropdownOpen, setIsPathDropdownOpen] = useState({});
+    const [isPointDropdownOpen, setIsPointDropdownOpen] = useState({});
 
     const actualImageRef = useRef(null);
     const mouseDownPosition = useRef(null);
@@ -45,9 +46,9 @@ function ImageComponent() {
 
         if (distance < 5) {
             // Check existing point
-            const clickedPoint = points.find(pt => Math.hypot(pt.x - x_px, pt.y - y_px) < 15);
+            const clickedPoint = paths.flatMap(p => p.points).find(pt => Math.hypot(pt.x - x_px, pt.y - y_px) < 15);
             if (clickedPoint) {
-                toggleDropdown(clickedPoint.id);
+                togglePointDropdown(clickedPoint.pathId, clickedPoint.id);
                 mouseDownPosition.current = null;
                 return;
             }
@@ -55,15 +56,16 @@ function ImageComponent() {
             const { x_pos: x_ft, y_pos: y_ft } = convertPixelsToFeet(x_px, y_px, 'bottom_left', rect);
             const newPoint = {
                 id: Date.now(),
+                pathId: selectedPathId,
                 x: x_px,
                 y: y_px,
                 x_ft,
                 y_ft,
                 angle: 0,
-                label: `Point ${points.length + 1}`
+                label: `Point`
             };
-            setPoints(prev => [...prev, newPoint]);
-            toggleDropdown(newPoint.id);
+            setPaths(prev => prev.map(p => p.id === selectedPathId ? { ...p, points: [...p.points, newPoint] } : p));
+            togglePointDropdown(selectedPathId, newPoint.id);
         }
         mouseDownPosition.current = null;
     };
@@ -77,17 +79,20 @@ function ImageComponent() {
             const rect = actualImageRef.current.getBoundingClientRect();
             const deltaX = e.clientX - startX;
             const deltaY = e.clientY - startY;
-            setPoints(prev => prev.map(pt => {
-                if (pt.id !== pointId) return pt;
-                // compute new pixel
-                const newX = Math.min(Math.max(0, pt.x + deltaX), rect.width);
-                const newY = Math.min(Math.max(0, pt.y + deltaY), rect.height);
-                // convert to feet
-                const { x_pos: x_ft, y_pos: y_ft } = convertPixelsToFeet(newX, newY, 'bottom_left', rect);
-                startX = e.clientX;
-                startY = e.clientY;
-                return {...pt, x: newX, y: newY, x_ft, y_ft};
-            }));
+            setPaths(prev => prev.map(p => ({
+                ...p,
+                points: p.points.map(pt => {
+                    if (pt.id !== pointId) return pt;
+                    // compute new pixel
+                    const newX = Math.min(Math.max(0, pt.x + deltaX), rect.width);
+                    const newY = Math.min(Math.max(0, pt.y + deltaY), rect.height);
+                    // convert to feet
+                    const { x_pos: x_ft, y_pos: y_ft } = convertPixelsToFeet(newX, newY, 'bottom_left', rect);
+                    startX = e.clientX;
+                    startY = e.clientY;
+                    return {...pt, x: newX, y: newY, x_ft, y_ft};
+                })
+            })));
         };
         const stopDrag = () => {
             window.removeEventListener('mousemove', dragHandler);
@@ -98,76 +103,92 @@ function ImageComponent() {
     };
 
     const handleSaveEdit = (id, label, x, y, angle) => {
-        setPoints((prevPoints) =>
-            prevPoints.map((point) =>
-                point.id === id
-                    ? {
-                        ...point,
-                        label,
-                        x: parseFloat(x),
-                        y: parseFloat(y),
-                        angle: parseFloat(angle),
-                    }
-                    : point
+        setPaths(prevPaths =>
+            prevPaths.map(path => ({
+                ...path,
+                points: path.points.map(point =>
+                    point.id === id
+                        ? {
+                            ...point,
+                            label,
+                            x: parseFloat(x),
+                            y: parseFloat(y),
+                            angle: parseFloat(angle),
+                        }
+                        : point
+                )
+            }))
+        );
+    };
+
+    const handleDeletePoint = (pathId, pointId) => {
+        setPaths(prevPaths =>
+            prevPaths.map(path =>
+                path.id === pathId
+                    ? { ...path, points: path.points.filter(point => point.id !== pointId) }
+                    : path
             )
         );
     };
 
-    const handleDeletePoint = (id) => {
-        setPoints((prevPoints) => prevPoints.filter((point) => point.id !== id));
+    const handleCreateNewPath = () => {
+        const newPath = { id: Date.now(), label: `Path ${paths.length + 1}`, points: [] };
+        setPaths(prev => [...prev, newPath]);
+        setSelectedPathId(newPath.id);
+        togglePathDropdown(newPath.id);
     };
 
-    const handleCreateNewPoint = () => {
-        const newPoint = {
-            id: Date.now(),
-            x: 50,
-            y: 50,
-            angle: 0,
-            x_ft: 0,
-            y_ft: 0,
-            label: `Point ${points.length + 1}`,
-        };
-        setPoints((prevPoints) => [...prevPoints, newPoint]);
-        toggleDropdown(newPoint.id); // Open the new point's dropdown immediately
+    const handleCreatePointInPath = (pathId) => {
+        const newPoint = { id: Date.now(), pathId, x: 50, y: 50, x_ft: 0, y_ft: 0, angle: 0, label: `Point` };
+        setPaths(prev => prev.map(p => p.id === pathId ? { ...p, points: [...p.points, newPoint] } : p));
+        togglePointDropdown(pathId, newPoint.id);
     };
 
-    const toggleDropdown = (pointId) => {
-        setIsDropdownOpen(prevState => ({
-            ...prevState,
-            [pointId]: !prevState[pointId]
-        }));
+    const togglePathDropdown = (pathId) => {
+        setIsPathDropdownOpen(prev => ({ ...prev, [pathId]: !prev[pathId] }));
     };
 
-    const handleInputChange = (id, field, value) => {
+    const togglePointDropdown = (pathId, pointId) => {
+        const key = `${pathId}-${pointId}`;
+        setIsPointDropdownOpen(prev => ({ ...prev, [key]: !prev[key] }));
+    };
+
+    const handleInputChange = (pathId, pointId, field, value) => {
         const rect = actualImageRef.current.getBoundingClientRect();
         const fieldSizeFt = 12; // field size in feet
       
-        setPoints(prev =>
-          prev.map(point => {
-            if (point.id !== id) return point;
-            let updated = { ...point };
-      
-            if (field === 'x_ft') {
-              updated.x_ft = value;
-              // convert feet to px horizontally
-              updated.x = (value / fieldSizeFt) * rect.width;
-            } else if (field === 'y_ft') {
-              updated.y_ft = value;
-              // origin is bottom_left: invert Y
-              updated.y = rect.height - (value / fieldSizeFt) * rect.height;
-            } else if (field === 'label') {
-              updated.label = value;
-            }
-            return updated;
-          })
+        setPaths(prev =>
+          prev.map(path => ({
+            ...path,
+            points: path.points.map(point => {
+              if (point.id !== pointId) return point;
+              let updated = { ...point };
+        
+              if (field === 'x_ft') {
+                updated.x_ft = value;
+                // convert feet to px horizontally
+                updated.x = (value / fieldSizeFt) * rect.width;
+              } else if (field === 'y_ft') {
+                updated.y_ft = value;
+                // origin is bottom_left: invert Y
+                updated.y = rect.height - (value / fieldSizeFt) * rect.height;
+              } else if (field === 'label') {
+                updated.label = value;
+              }
+              return updated;
+            })
+          }))
         );
       };
 
-    const handleAngleChange = (id, newAngle) => {
-        setPoints(prevPoints =>
-            prevPoints.map(point =>
-                point.id === id ? { ...point, angle: newAngle } : point
-            )
+    const handleAngleChange = (pathId, pointId, newAngle) => {
+        setPaths(prevPaths =>
+            prevPaths.map(path => ({
+                ...path,
+                points: path.points.map(point =>
+                    point.id === pointId ? { ...point, angle: newAngle } : point
+                )
+            }))
         );
     };
 
@@ -175,64 +196,90 @@ function ImageComponent() {
         <div className="image-container">
             <div className='main-content'>
                 <div className="side-menu">
-                    <h3>Points</h3>
-                    <button onClick={handleCreateNewPoint} style={{ marginBottom: '10px' }}>
-                        Create New Point
+                    <h3>Paths</h3>
+                    <button onClick={handleCreateNewPath} style={{ marginBottom: '10px' }}>
+                        Create New Path
                     </button>
-                    {points.length === 0 ? (
-                        <p>No points created yet.</p>
+                    {paths.length === 0 ? (
+                        <p>No paths created yet.</p>
                     ) : (
-                        points.map((point) => (
-                            <div key={point.id} style={{ marginBottom: '10px' }}>
+                        paths.map((path) => (
+                            <div key={path.id} style={{ marginBottom: '10px' }}>
                                 <div className="dropdown">
                                     <button
                                         className="dropdown-button"
-                                        onClick={() => toggleDropdown(point.id)}
+                                        onClick={() => togglePathDropdown(path.id)}
                                     >
-                                        {point.label}
+                                        {path.label}
                                     </button>
-                                    {isDropdownOpen[point.id] && (
+                                    {isPathDropdownOpen[path.id] && (
                                         <div className="dropdown-content">
-                                            <input
-                                                type="text"
-                                                placeholder="Label"
-                                                value={point.label}
-                                                onChange={(e) => handleInputChange(point.id, 'label', e.target.value)}
-                                                style={{ display: 'block', marginBottom: '5px' }}
-                                            />
-                                            <input
-                                                type="number"
-                                                placeholder="X (ft)"
-                                                value={point.x_ft}
-                                                onChange={(e) => handleInputChange(point.id, 'x_ft', parseFloat(e.target.value) || 0)}
-                                                style={{ display: 'block', marginBottom: '5px' }}
-                                            />
-                                            <input
-                                                type="number"
-                                                placeholder="Y (ft)"
-                                                value={point.y_ft}
-                                                onChange={(e) => handleInputChange(point.id, 'y_ft', parseFloat(e.target.value) || 0)}
-                                                style={{ display: 'block', marginBottom: '5px' }}
-                                            />
-                                            <Knob
-                                                id={`knob-${point.id}`}
-                                                size={75}
-                                                showText={true}
-                                                angle={point.angle}
-                                                onAngleChange={(id, angle) => {
-                                                    handleAngleChange(point.id, angle);
-                                                }}
-                                            />
-                                            <div style={{ marginTop: '5px' }}>
-                                                <button
-                                                    onClick={() => {
-                                                        toggleDropdown(point.id); // Close the dropdown
-                                                    }}
-                                                >
-                                                    Close
-                                                </button>
-                                                <button onClick={() => handleDeletePoint(point.id)}>Delete</button>
-                                            </div>
+                                            <button
+                                                onClick={() => handleCreatePointInPath(path.id)}
+                                                style={{ marginBottom: '10px' }}
+                                            >
+                                                Create New Point
+                                            </button>
+                                            {path.points.length === 0 ? (
+                                                <p>No points created yet.</p>
+                                            ) : (
+                                                path.points.map((point) => (
+                                                    <div key={point.id} style={{ marginBottom: '10px' }}>
+                                                        <div className="dropdown">
+                                                            <button
+                                                                className="dropdown-button"
+                                                                onClick={() => togglePointDropdown(path.id, point.id)}
+                                                            >
+                                                                {point.label}
+                                                            </button>
+                                                            {isPointDropdownOpen[`${path.id}-${point.id}`] && (
+                                                                <div className="dropdown-content">
+                                                                    <input
+                                                                        type="text"
+                                                                        placeholder="Label"
+                                                                        value={point.label}
+                                                                        onChange={(e) => handleInputChange(path.id, point.id, 'label', e.target.value)}
+                                                                        style={{ display: 'block', marginBottom: '5px' }}
+                                                                    />
+                                                                    <input
+                                                                        type="number"
+                                                                        placeholder="X (ft)"
+                                                                        value={point.x_ft}
+                                                                        onChange={(e) => handleInputChange(path.id, point.id, 'x_ft', parseFloat(e.target.value) || 0)}
+                                                                        style={{ display: 'block', marginBottom: '5px' }}
+                                                                    />
+                                                                    <input
+                                                                        type="number"
+                                                                        placeholder="Y (ft)"
+                                                                        value={point.y_ft}
+                                                                        onChange={(e) => handleInputChange(path.id, point.id, 'y_ft', parseFloat(e.target.value) || 0)}
+                                                                        style={{ display: 'block', marginBottom: '5px' }}
+                                                                    />
+                                                                    <Knob
+                                                                        id={`knob-${point.id}`}
+                                                                        size={75}
+                                                                        showText={true}
+                                                                        angle={point.angle}
+                                                                        onAngleChange={(id, angle) => {
+                                                                            handleAngleChange(path.id, point.id, angle);
+                                                                        }}
+                                                                    />
+                                                                    <div style={{ marginTop: '5px' }}>
+                                                                        <button
+                                                                            onClick={() => {
+                                                                                togglePointDropdown(path.id, point.id); // Close the dropdown
+                                                                            }}
+                                                                        >
+                                                                            Close
+                                                                        </button>
+                                                                        <button onClick={() => handleDeletePoint(path.id, point.id)}>Delete</button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                ))
+                                            )}
                                         </div>
                                     )}
                                 </div>
@@ -253,7 +300,7 @@ function ImageComponent() {
                             draggable="false"
                         />
 
-                        {points.map((point) => (
+                        {paths.flatMap(p => p.points).map((point) => (
                             <div key={point.id} style={{ position: 'absolute', left: `${point.x}px`, top: `${point.y}px` }} className="draggable-point" onMouseDown={(e) => handleDragStart(point.id, e)}>
                                 <Knob
                                     id={`field-knob-${point.id}`}
@@ -261,7 +308,7 @@ function ImageComponent() {
                                     showText={false}
                                     angle={point.angle}
                                     onAngleChange={(id, angle) => {
-                                        handleAngleChange(point.id, angle);
+                                        handleAngleChange(point.pathId, point.id, angle);
                                     }}
                                 />
                                 <div className="point-label">
@@ -281,8 +328,8 @@ function ImageComponent() {
 
             {/* Code Blocks Component */}
             <div className="code-blocks-component">
-                <CodeBlocks x_ft={points.length? points[points.length-1].x_ft:0}
-                            y_ft={points.length? points[points.length-1].y_ft:0}
+                <CodeBlocks x_ft={paths.length && paths[paths.length-1].points.length ? paths[paths.length-1].points[paths[paths.length-1].points.length-1].x_ft : 0}
+                            y_ft={paths.length && paths[paths.length-1].points.length ? paths[paths.length-1].points[paths[paths.length-1].points.length-1].y_ft : 0}
                             speed="fast_motion" />
             </div>
         </div>
