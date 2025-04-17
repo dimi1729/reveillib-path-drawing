@@ -33,42 +33,38 @@ function ImageComponent() {
     };
 
     const handleMouseUp = (event) => {
-        if (!mouseDownPosition.current) return;
-
+        event.preventDefault();
         const rect = actualImageRef.current.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-        const distance = Math.sqrt((mouseDownPosition.current.x - x) ** 2 + (mouseDownPosition.current.y - y) ** 2);
+
+        // Compute pixel coords relative to actual image
+        const x_px = Math.min(Math.max(0, event.clientX - rect.left), rect.width);
+        const y_px = Math.min(Math.max(0, event.clientY - rect.top), rect.height);
+        const distance = mouseDownPosition.current
+            ? Math.hypot(mouseDownPosition.current.x - x_px, mouseDownPosition.current.y - y_px)
+            : 0;
 
         if (distance < 5) {
-            const clickedPoint = points.find((point) => {
-                const pointDistance = Math.sqrt((point.x - x) ** 2 + (point.y - y) ** 2);
-                return pointDistance < 15;
-            });
-
+            // Check existing point
+            const clickedPoint = points.find(pt => Math.hypot(pt.x - x_px, pt.y - y_px) < 15);
             if (clickedPoint) {
-                // Toggle dropdown for the clicked point
                 toggleDropdown(clickedPoint.id);
                 mouseDownPosition.current = null;
                 return;
             }
-
-            const pos_ft = convertPixelsToFeet(x, y, "bottom_left", rect);
+            // Convert to feet
+            const { x_pos: x_ft, y_pos: y_ft } = convertPixelsToFeet(x_px, y_px, 'bottom_left', rect);
             const newPoint = {
                 id: Date.now(),
-                x,
-                y,
+                x: x_px,
+                y: y_px,
+                x_ft,
+                y_ft,
                 angle: 0,
-                x_ft: pos_ft.x_pos,
-                y_ft: pos_ft.y_pos,
-                label: `Point ${points.length + 1}`,
+                label: `Point ${points.length + 1}`
             };
-
-            setPoints((prevPoints) => [...prevPoints, newPoint]);
-            toggleDropdown(newPoint.id); // Open the new point's dropdown immediately
-            console.log(`Clicked at position: x=${x}, y=${y}`);
+            setPoints(prev => [...prev, newPoint]);
+            toggleDropdown(newPoint.id);
         }
-
         mouseDownPosition.current = null;
     };
 
@@ -76,33 +72,27 @@ function ImageComponent() {
         event.preventDefault();
         let startX = event.clientX;
         let startY = event.clientY;
-
-        const dragHandler = (dragEvent) => {
-            dragEvent.preventDefault();
+        const dragHandler = e => {
+            e.preventDefault();
             const rect = actualImageRef.current.getBoundingClientRect();
-            const deltaX = dragEvent.clientX - startX;
-            const deltaY = dragEvent.clientY - startY;
-
-            setPoints((prevPoints) =>
-                prevPoints.map((point) => {
-                    if (point.id === pointId) {
-                        const newX = Math.min(Math.max(0, point.x + deltaX), rect.width);
-                        const newY = Math.min(Math.max(0, point.y + deltaY), rect.height);
-                        return { ...point, x: newX, y: newY };
-                    }
-                    return point;
-                })
-            );
-
-            startX = dragEvent.clientX;
-            startY = dragEvent.clientY;
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            setPoints(prev => prev.map(pt => {
+                if (pt.id !== pointId) return pt;
+                // compute new pixel
+                const newX = Math.min(Math.max(0, pt.x + deltaX), rect.width);
+                const newY = Math.min(Math.max(0, pt.y + deltaY), rect.height);
+                // convert to feet
+                const { x_pos: x_ft, y_pos: y_ft } = convertPixelsToFeet(newX, newY, 'bottom_left', rect);
+                startX = e.clientX;
+                startY = e.clientY;
+                return {...pt, x: newX, y: newY, x_ft, y_ft};
+            }));
         };
-
         const stopDrag = () => {
             window.removeEventListener('mousemove', dragHandler);
             window.removeEventListener('mouseup', stopDrag);
         };
-
         window.addEventListener('mousemove', dragHandler);
         window.addEventListener('mouseup', stopDrag);
     };
@@ -148,13 +138,30 @@ function ImageComponent() {
         }));
     };
 
-    const handleInputChange = (pointId, field, value) => {
-        setPoints(prevPoints =>
-            prevPoints.map(point =>
-                point.id === pointId ? { ...point, [field]: value } : point
-            )
+    const handleInputChange = (id, field, value) => {
+        const rect = actualImageRef.current.getBoundingClientRect();
+        const fieldSizeFt = 12; // field size in feet
+      
+        setPoints(prev =>
+          prev.map(point => {
+            if (point.id !== id) return point;
+            let updated = { ...point };
+      
+            if (field === 'x_ft') {
+              updated.x_ft = value;
+              // convert feet to px horizontally
+              updated.x = (value / fieldSizeFt) * rect.width;
+            } else if (field === 'y_ft') {
+              updated.y_ft = value;
+              // origin is bottom_left: invert Y
+              updated.y = rect.height - (value / fieldSizeFt) * rect.height;
+            } else if (field === 'label') {
+              updated.label = value;
+            }
+            return updated;
+          })
         );
-    };
+      };
 
     const handleAngleChange = (id, newAngle) => {
         setPoints(prevPoints =>
@@ -195,16 +202,16 @@ function ImageComponent() {
                                             />
                                             <input
                                                 type="number"
-                                                placeholder="X Position"
-                                                value={point.x}
-                                                onChange={(e) => handleInputChange(point.id, 'x', parseFloat(e.target.value))}
+                                                placeholder="X (ft)"
+                                                value={point.x_ft}
+                                                onChange={(e) => handleInputChange(point.id, 'x_ft', parseFloat(e.target.value) || 0)}
                                                 style={{ display: 'block', marginBottom: '5px' }}
                                             />
                                             <input
                                                 type="number"
-                                                placeholder="Y Position"
-                                                value={point.y}
-                                                onChange={(e) => handleInputChange(point.id, 'y', parseFloat(e.target.value))}
+                                                placeholder="Y (ft)"
+                                                value={point.y_ft}
+                                                onChange={(e) => handleInputChange(point.id, 'y_ft', parseFloat(e.target.value) || 0)}
                                                 style={{ display: 'block', marginBottom: '5px' }}
                                             />
                                             <Knob
@@ -236,7 +243,7 @@ function ImageComponent() {
 
                 {/* Main Content */}
                 <div className="image-wrapper">
-                    <div className="actual-image-container" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
+                    <div className="actual-image-container"  onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
                         {/* Main Image */}
                         <img
                             ref={actualImageRef}
@@ -274,7 +281,9 @@ function ImageComponent() {
 
             {/* Code Blocks Component */}
             <div className="code-blocks-component">
-                <CodeBlocks x_ft={0} y_ft={0} speed="fast_motion" />
+                <CodeBlocks x_ft={points.length? points[points.length-1].x_ft:0}
+                            y_ft={points.length? points[points.length-1].y_ft:0}
+                            speed="fast_motion" />
             </div>
         </div>
     );

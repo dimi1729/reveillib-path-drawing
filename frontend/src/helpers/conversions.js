@@ -2,9 +2,9 @@ export function convertPixelsToFeet(x_px, y_px, origin, rect) {
     const round3 = (value) => Math.round(value * 1000) / 1000;
     const fieldSize = 12; // Field dimensions in feet
 
-    // Compute relative positions (0 to 1)
-    const relativeX = (x_px - rect.left) / rect.width;
-    const relativeY = (y_px - rect.top) / rect.height; // using rect.top
+    // x_px and y_px are already relative to the element; compute normalized values
+    const relativeX = x_px / rect.width;
+    const relativeY = y_px / rect.height;
 
     if (origin === "top_left"){
         const x_pos = round3(relativeX * fieldSize);
