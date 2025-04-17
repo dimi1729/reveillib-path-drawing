@@ -235,8 +235,8 @@ function ImageComponent() {
                 </div>
 
                 {/* Main Content */}
-                <div className="image-wrapper" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
-                    <div className="actual-image-container">
+                <div className="image-wrapper">
+                    <div className="actual-image-container" onMouseDown={handleMouseDown} onMouseUp={handleMouseUp}>
                         {/* Main Image */}
                         <img
                             ref={actualImageRef}
