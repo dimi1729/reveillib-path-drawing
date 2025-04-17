@@ -6,6 +6,7 @@
     bottom: 1vw;
     left: 1vw;       /* fixed to left side */
     width: 47vw;   /* use half of the viewport width */
+    margin: 0 auto; /* center ts */
 }
 
 .code-block {

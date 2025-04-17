@@ -18,6 +18,7 @@
 /* Points Column on the Left */
 .side-menu {
   width: 30vw; /* Fixed width for your points menu */
+  max-height: 90vh; /* this makes it not take up full height */
   overflow-y: auto;
   background-color: #f0f0f0; /* Optional: background color for clarity */
   padding: 20px;
