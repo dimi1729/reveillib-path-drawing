@@ -32,11 +32,12 @@
 }
 
 .actual-image-container {
-  position: absolute;
+  position: relative;
   width: 50vw;
   aspect-ratio: 1;
-  right: 0;
-  top: 1;
+  margin: 0 auto;
+  /*right: 0;
+  top: 1;*/
   overflow: hidden;
 }
 
@@ -109,6 +110,8 @@
 
 .code-blocks-component {
   position: relative;
+  /*z-index: auto;*/
+  overflow-x: auto;
   background-color: #2d2d2d;
   color: #f8f8f2;
   font-family: 'Courier New', Courier, monospace;
