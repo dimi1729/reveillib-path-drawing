@@ -44,7 +44,7 @@ function ImageComponent() {
             ? Math.hypot(mouseDownPosition.current.x - x_px, mouseDownPosition.current.y - y_px)
             : 0;
 
-        if (distance < 5) {
+        if (distance < 5 && selectedPathId !== null) { // Ensure a path is selected
             // Check existing point
             const clickedPoint = paths.flatMap(p => p.points).find(pt => Math.hypot(pt.x - x_px, pt.y - y_px) < 15);
             if (clickedPoint) {
@@ -52,6 +52,13 @@ function ImageComponent() {
                 mouseDownPosition.current = null;
                 return;
             }
+
+            // Find path index and next point index for labeling
+            const pathIndex = paths.findIndex(p => p.id === selectedPathId);
+            const targetPath = paths.find(p => p.id === selectedPathId);
+            const pointIndex = targetPath ? targetPath.points.length : 0;
+            const newLabel = `(${pathIndex + 1}, ${pointIndex + 1})`;
+
             // Convert to feet
             const { x_pos: x_ft, y_pos: y_ft } = convertPixelsToFeet(x_px, y_px, 'bottom_left', rect);
             const newPoint = {
@@ -62,7 +69,7 @@ function ImageComponent() {
                 x_ft,
                 y_ft,
                 angle: 0,
-                label: `Point`
+                label: newLabel // Use the generated label
             };
             setPaths(prev => prev.map(p => p.id === selectedPathId ? { ...p, points: [...p.points, newPoint] } : p));
             togglePointDropdown(selectedPathId, newPoint.id);
@@ -139,7 +146,13 @@ function ImageComponent() {
     };
 
     const handleCreatePointInPath = (pathId) => {
-        const newPoint = { id: Date.now(), pathId, x: 50, y: 50, x_ft: 0, y_ft: 0, angle: 0, label: `Point` };
+        // Find path index and next point index for labeling
+        const pathIndex = paths.findIndex(p => p.id === pathId);
+        const targetPath = paths.find(p => p.id === pathId);
+        const pointIndex = targetPath ? targetPath.points.length : 0;
+        const newLabel = `(${pathIndex + 1}, ${pointIndex + 1})`;
+
+        const newPoint = { id: Date.now(), pathId, x: 50, y: 50, x_ft: 0, y_ft: 0, angle: 0, label: newLabel }; // Use the generated label
         setPaths(prev => prev.map(p => p.id === pathId ? { ...p, points: [...p.points, newPoint] } : p));
         togglePointDropdown(pathId, newPoint.id);
     };
@@ -328,8 +341,9 @@ function ImageComponent() {
 
             {/* Code Blocks Component */}
             <div className="code-blocks-component">
-                <CodeBlocks x_ft={paths.length && paths[paths.length-1].points.length ? paths[paths.length-1].points[paths[paths.length-1].points.length-1].x_ft : 0}
-                            y_ft={paths.length && paths[paths.length-1].points.length ? paths[paths.length-1].points[paths[paths.length-1].points.length-1].y_ft : 0}
+                {/* Simplified props to test for syntax errors */}
+                <CodeBlocks x_ft={0}
+                            y_ft={0}
                             speed="fast_motion" />
             </div>
         </div>
