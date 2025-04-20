@@ -64,14 +64,11 @@
 
 .draggable-point {
   position: absolute;
-  left: -7.5px;
-  top: -7.5px;
-  width: 15px;
-  height: 15px;
-  background-color: red;
-  border-radius: 50%;
+  width: 15px; /* Keep width/height if needed for click area, or adjust/remove */
+  height: 15px; /* Keep width/height if needed for click area, or adjust/remove */
   cursor: pointer;
   user-select: none;
+  /* The Knob component inside will provide the visual */
 }
 
 .angle-indicator-bar {

@@ -314,10 +314,20 @@ function ImageComponent() {
                         />
 
                         {paths.flatMap(p => p.points).map((point) => (
-                            <div key={point.id} style={{ position: 'absolute', left: `${point.x}px`, top: `${point.y}px` }} className="draggable-point" onMouseDown={(e) => handleDragStart(point.id, e)}>
+                            <div 
+                                key={point.id} 
+                                style={{ 
+                                    position: 'absolute', 
+                                    left: `${point.x}px`, 
+                                    top: `${point.y}px`, 
+                                    transform: 'translate(-50%, -50%)' // Center the div itself
+                                }}
+                                className="draggable-point" 
+                                onMouseDown={(e) => handleDragStart(point.id, e)}
+                            >
                                 <Knob
                                     id={`field-knob-${point.id}`}
-                                    size={30}
+                                    size={30} // Keep the Knob size
                                     showText={false}
                                     angle={point.angle}
                                     onAngleChange={(id, angle) => {
