@@ -41,15 +41,9 @@ function CodeBlocks({ x_ft, y_ft, speed }) {
 
   return (
     <div className="code-blocks-container">
-      {/* <pre className="code-block code-block-content">
-        {"// ADD COMMENTS HERE"}
-      </pre> */}
       <pre className="code-block code-block-content">
         {convert_to_reveillib_code(path_dict)}
       </pre>
-      {/* <pre className="code-block code-block-content">
-        {"reckless->await();"}
-      </pre> */}
     </div>
   );
 }
